@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { UserService } from './user/user.service';
+import { EmailModule } from './email/email.module';
+import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
+import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './user/entity/User.entity';
-import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -28,12 +28,11 @@ import { AuthModule } from './auth/auth.module';
         synchronize: true,
       }),
     }),
-
     UserModule,
-
     AuthModule,
+    EmailModule,
   ],
-  controllers: [AppController],
-  providers: [AppService, UserService],
+  controllers: [AppController], // Mantenha apenas o AppController
+  providers: [AppService], // Mantenha apenas o AppService
 })
 export class AppModule {}
