@@ -5,12 +5,14 @@ import { UserModule } from 'src/user/user.module';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { EmailModule } from 'src/email/email.module';
+import { TokenModule } from 'src/token/token.module';
 
 @Module({
   imports: [
     forwardRef(() => UserModule),
     EmailModule,
     ConfigModule,
+    TokenModule,
     JwtModule.registerAsync({
       global: true,
       imports: [ConfigModule],

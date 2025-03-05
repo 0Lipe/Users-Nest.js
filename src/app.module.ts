@@ -7,6 +7,10 @@ import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './user/entity/User.entity';
+import { TokenModule } from './token/token.module';
+import { Token } from './token/token.entity';
+import { TaskModule } from './task/task.module';
+import { DayService } from './day/day.service';
 
 @Module({
   imports: [
@@ -24,15 +28,17 @@ import { User } from './user/entity/User.entity';
         username: configService.get<string>('DB_USER'),
         password: configService.get<string>('DB_PASS'),
         database: configService.get<string>('DB_NAME'),
-        entities: [User],
+        entities: [User, Token],
         synchronize: true,
       }),
     }),
     UserModule,
     AuthModule,
     EmailModule,
+    TokenModule,
+    TaskModule,
   ],
-  controllers: [AppController], // Mantenha apenas o AppController
-  providers: [AppService], // Mantenha apenas o AppService
+  controllers: [AppController],
+  providers: [AppService, DayService],
 })
 export class AppModule {}

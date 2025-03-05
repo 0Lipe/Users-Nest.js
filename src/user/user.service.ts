@@ -1,5 +1,7 @@
 import {
   ConflictException,
+  forwardRef,
+  Inject,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -9,14 +11,18 @@ import { User } from './entity/User.entity';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-
 import { UserDto } from './dto/user.dto';
 import { JwtService } from '@nestjs/jwt';
 import { passwordCrypt } from 'src/auth/ults/password';
+import { generateRandomCode } from 'src/auth/ults/code';
+import { AuthService } from 'src/auth/auth.service';
+import { emailDto } from 'src/auth/dto/email.dto';
 
 @Injectable()
 export class UserService {
   constructor(
+    @Inject(forwardRef(() => AuthService))
+    private authService: AuthService,
     @InjectRepository(User)
     private usersRepository: Repository<User>,
     private jwtService: JwtService,
@@ -30,18 +36,20 @@ export class UserService {
       ],
     });
     if (existingUser) {
-      throw new ConflictException('Usuário já existe com este nome ou e-mail.');
+      throw new ConflictException('This user already exists.');
     }
 
     const password = await passwordCrypt(createUserDto.password);
-
+    const code = await generateRandomCode(6);
     const newUser = this.usersRepository.create({
       ...createUserDto,
       password: password,
+      code: code,
+      isActive: false,
     });
 
     await this.usersRepository.save(newUser);
-
+    this.authService.sendCode(new emailDto(newUser.email));
     const returnUser = new UserDto(newUser);
     return returnUser;
   }
@@ -59,11 +67,11 @@ export class UserService {
     if (!user) throw new NotFoundException();
 
     if (!token) throw new UnauthorizedException();
-    const userDecoded = this.jwtService.decode(token);
+    const userDecoded = await this.jwtService.verify(token);
     if (!userDecoded) throw new UnauthorizedException();
 
     if (user.username !== userDecoded.username) {
-      throw new UnauthorizedException('Você não pode editar este usuário');
+      throw new UnauthorizedException("You can't delete this user");
     }
     await this.usersRepository.delete(id);
   }
@@ -77,11 +85,11 @@ export class UserService {
     if (!user) throw new NotFoundException();
 
     if (!token) throw new UnauthorizedException();
-    const userDecoded = this.jwtService.decode(token);
+    const userDecoded = await this.jwtService.verify(token);
     if (!userDecoded) throw new UnauthorizedException();
 
     if (user.username !== userDecoded.username) {
-      throw new UnauthorizedException('Você não pode editar este usuário');
+      throw new UnauthorizedException("You can't change this user");
     }
 
     if (updateUserDto.password) {

@@ -5,5 +5,6 @@ export function extractToken(req: Request): string | null {
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return null;
   }
+  authHeader.split(' ')[1];
   return authHeader.split(' ')[1];
 }

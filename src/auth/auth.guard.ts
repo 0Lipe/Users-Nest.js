@@ -16,14 +16,14 @@ export class AuthGuard implements CanActivate {
 
     const token = extractToken(request);
     if (!token) {
-      throw new UnauthorizedException('Token não encontrado.');
+      throw new UnauthorizedException('Token not found.');
     }
 
     try {
       const tokenPayload = await this.jwtService.verifyAsync(token);
 
       if (!tokenPayload?.sub || !tokenPayload?.username) {
-        throw new UnauthorizedException('Token inválido.');
+        throw new UnauthorizedException('Token invalid.');
       }
 
       request.user = {
@@ -33,7 +33,7 @@ export class AuthGuard implements CanActivate {
 
       return true;
     } catch (error) {
-      throw new UnauthorizedException('Token inválido ou expirado.');
+      throw new UnauthorizedException('Token invalid or expired.');
     }
   }
 }

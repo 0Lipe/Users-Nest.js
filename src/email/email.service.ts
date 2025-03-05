@@ -32,9 +32,9 @@ export class EmailService {
     };
     try {
       await transport.sendMail(options);
-      console.log('E-mail enviado com sucesso');
+      console.log('E-mail send with success ');
     } catch (err) {
-      console.error('Erro ao enviar e-mail:', err);
+      console.error('Error in send e-mail:', err);
     }
   }
 }

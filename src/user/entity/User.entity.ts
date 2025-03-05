@@ -21,4 +21,10 @@ export class User {
 
   @Column()
   password: string;
+
+  @Column({ type: 'varchar', nullable: true })
+  code: string | null;
+
+  @Column({ default: false })
+  isActive: boolean;
 }
